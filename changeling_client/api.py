@@ -1,4 +1,6 @@
+import json
 import urlparse
+
 import requests
 
 import warlock
@@ -9,9 +11,16 @@ class Service(object):
         self.endpoint = endpoint
         self._model = None
 
-    def _request(self, method, rel_path):
+    def _request(self, method, rel_path, body=None):
         full_path = urlparse.urljoin(self.endpoint, rel_path)
-        return requests.request(method, full_path)
+        kwargs = {'headers': {}}
+
+        if body is not None:
+            kwargs['data'] = json.dumps(body)
+            kwargs['headers']['content-type'] = \
+                    'application/vnd.changeling.v0+json'
+
+        return requests.request(method, full_path, **kwargs)
 
     @property
     def model(self):
@@ -21,16 +30,20 @@ class Service(object):
         return self._model
 
     def get_schema(self):
-        request = self._request('GET', '/schemas/change')
-        return request.json()
+        response = self._request('GET', '/schemas/change')
+        return response.json()
 
     def list_changes(self):
-        request = self._request('GET', '/changes')
-        return [self.model(change) for change in request.json()]
+        response = self._request('GET', '/changes')
+        return [self.model(change) for change in response.json()]
 
     def get_change(self, change_id):
-        request = self._request('GET', '/changes/%s' % change_id)
-        return self.model(request.json())
+        response = self._request('GET', '/changes/%s' % change_id)
+        return self.model(response.json())
 
     def delete_change(self, change):
         self._request('DELETE', '/changes/%s' % change.id)
+
+    def create_change(self, change):
+        response = self._request('POST', '/changes', dict(change))
+        return self.model(response.json())

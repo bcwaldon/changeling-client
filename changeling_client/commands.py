@@ -29,6 +29,16 @@ def show_change(service, args):
     print _format_change(change)
 
 
+def create_change(service, args):
+    data = {}
+    for key in 'name', 'description', 'tags':
+        value = getattr(args, key)
+        if value is not None:
+            data[key] = value
+    change = service.create_change(data)
+    print 'Created change %s' % change.id
+
+
 def delete_change(service, args):
     prompt = 'Are you sure you want to delete change %s?' % args.change_id
     if user_confirm(prompt):
@@ -46,6 +56,12 @@ def register(subparsers):
     subparser = subparsers.add_parser('show')
     subparser.set_defaults(func=show_change)
     subparser.add_argument('change_id')
+
+    subparser = subparsers.add_parser('create')
+    subparser.set_defaults(func=create_change)
+    subparser.add_argument('--name', required=True)
+    subparser.add_argument('--description')
+    subparser.add_argument('--tag', dest='tags', action='append')
 
     subparser = subparsers.add_parser('delete')
     subparser.set_defaults(func=delete_change)
