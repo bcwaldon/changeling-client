@@ -15,4 +15,4 @@ def main():
     args = parser.parse_args()
     service = changeling_client.api.Service(args.endpoint)
 
-    args.func(service)
+    args.func(service, args)

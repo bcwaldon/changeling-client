@@ -31,3 +31,6 @@ class Service(object):
     def get_change(self, change_id):
         request = self._request('GET', '/changes/%s' % change_id)
         return self.model(request.json())
+
+    def delete_change(self, change):
+        self._request('DELETE', '/changes/%s' % change.id)
