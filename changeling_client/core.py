@@ -1,13 +1,18 @@
 import argparse
 
 import changeling_client.api
+import changeling_client.commands
 
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--endpoint', required=True)
 
+subparsers = parser.add_subparsers()
+changeling_client.commands.register(subparsers)
+
 
 def main():
     args = parser.parse_args()
     service = changeling_client.api.Service(args.endpoint)
-    print service.get_change('43af1ff3-10b4-4060-9562-133d56efcc91')
+
+    args.func(service)
