@@ -7,16 +7,26 @@ def user_confirm(prompt='Are you sure?'):
         else:
             return user_input == 'y'
 
+def _format_change(change):
+    return '\n'.join((
+        'ID:       %s' % change.id,
+        'Name:     %s' % getattr(change, 'name', '...'),
+        'WIP:      %s' % ('Yes' if change.wip else 'No',),
+        'Approved: %s' % ('Yes' if change.wip else 'No',),
+        'Tags:     %s' % (', '.join(change.tags) or '...',),
+        'Desc:     %s' % getattr(change, 'description', '...'),
+        '',
+    ))
+
 
 def list_changes(service, args):
     for change in service.list_changes():
-        print 'ID:       %s' % change.id
-        print 'Name:     %s' % getattr(change, 'name', '...')
-        print 'Desc:     %s' % getattr(change, 'description', '...')
-        print 'Tags:     %s' % (', '.join(change.tags) or '...',)
-        print 'WIP:      %s' % ('Yes' if change.wip else 'No',)
-        print 'Approved: %s' % ('Yes' if change.wip else 'No',)
-        print
+        print _format_change(change)
+
+
+def show_change(service, args):
+    change = service.get_change(args.change_id)
+    print _format_change(change)
 
 
 def delete_change(service, args):
@@ -32,6 +42,10 @@ def delete_change(service, args):
 def register(subparsers):
     subparser = subparsers.add_parser('list')
     subparser.set_defaults(func=list_changes)
+
+    subparser = subparsers.add_parser('show')
+    subparser.set_defaults(func=show_change)
+    subparser.add_argument('change_id')
 
     subparser = subparsers.add_parser('delete')
     subparser.set_defaults(func=delete_change)
