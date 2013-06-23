@@ -13,7 +13,7 @@ setuptools.setup(
     install_requires=parse_requirements(),
     entry_points={
         'console_scripts': [
-            'changeling = changeling_client.cli:main',
+            'changeling = changeling_client.core:main',
         ],
     },
 )
